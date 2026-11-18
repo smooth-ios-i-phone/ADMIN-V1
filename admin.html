@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#060911">
+  <title>Smooth iOS Optimizer | Admin Control Panel</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+
+  <style>
+    :root {
+      --bg-primary: #060911;
+      --bg-secondary: #0c1220;
+      --bg-card: rgba(16, 24, 40, 0.75);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glass-light: rgba(255, 255, 255, 0.15);
+      --cyan-neon: #00f2fe;
+      --purple-neon: #9d4edd;
+      --green-neon: #10b981;
+      --amber-neon: #f59e0b;
+      --red-neon: #ef4444;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body.admin-dark-theme {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .ambient-glow {
+      position: fixed; border-radius: 50%; filter: blur(100px); z-index: -2; pointer-events: none; opacity: 0.35;
+    }
+    .glow-1 { width: 350px; height: 350px; top: -50px; right: -50px; background: radial-gradient(circle, #00f2fe, #4facfe); }
+    .glow-admin { width: 400px; height: 400px; top: 20%; left: 20%; background: radial-gradient(circle, rgba(16, 185, 129, 0.2), rgba(0, 242, 254, 0.15)); }
+
+    .admin-login-wrapper {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .login-box { max-width: 400px; width: 100%; }
+
+    .admin-logo-badge {
+      width: 56px; height: 56px; border-radius: 16px;
+      background: linear-gradient(135deg, #00f2fe, #10b981); color: #070a11;
+      font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
+    }
+
+    .login-header h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+    .login-header p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; }
+
+    .admin-dashboard { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .admin-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 16px 24px;
+      background: rgba(13, 20, 36, 0.8); backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass-light); border-radius: var(--radius-lg); margin-bottom: 24px;
+    }
+    .admin-brand { display: flex; align-items: center; gap: 14px; }
+    .admin-pill-logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #00f2fe); color: #060911;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .admin-brand h3 { font-size: 1.15rem; font-weight: 800; }
+    .admin-status-badge { font-size: 0.72rem; color: var(--green-neon); display: flex; align-items: center; gap: 6px; }
+
+    .glass-btn-sm {
+      background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-glass-light);
+      color: var(--text-primary); padding: 8px 14px; border-radius: var(--radius-sm);
+      font-size: 0.78rem; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+
+    .admin-stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;
+    }
+    .admin-stat-card {
+      background: rgba(16, 24, 40, 0.65); backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 20px;
+    }
+    .stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .stat-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+    .stat-big-val { font-size: 2rem; font-weight: 800; font-family: var(--font-mono); color: #fff; margin-bottom: 6px; }
+    .stat-sub-text { font-size: 0.75rem; color: var(--text-secondary); }
+
+    .admin-nav-tabs {
+      display: flex; gap: 8px; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px; margin-bottom: 24px; overflow-x: auto;
+    }
+    .adm-tab-btn {
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass);
+      color: var(--text-secondary); padding: 10px 18px; border-radius: var(--radius-md);
+      font-size: 0.85rem; font-weight: 700; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 8px;
+    }
+    .adm-tab-btn.active {
+      background: rgba(0, 242, 254, 0.15); border-color: var(--cyan-neon); color: #fff; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    }
+    .admin-tab-pane { display: none; }
+    .admin-tab-pane.active { display: block; }
+
+    .glass-card {
+      background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .card-head h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+    .key-gen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: flex-end; }
+    .gen-btn-col { display: flex; flex-direction: column; }
+    .latest-keys-box { margin-top: 20px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 16px; }
+    .new-key-chip { background: rgba(0, 0, 0, 0.5); padding: 8px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.9rem; color: #fff; display: inline-flex; align-items: center; gap: 10px; margin: 4px 6px 4px 0; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .copy-key-btn { background: none; border: none; color: var(--cyan-neon); cursor: pointer; }
+
+    .table-responsive { overflow-x: auto; margin-top: 14px; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; }
+    .admin-table th { padding: 12px 14px; background: rgba(0, 0, 0, 0.3); color: var(--text-muted); font-weight: 700; border-bottom: 1px solid var(--border-glass-light); }
+    .admin-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-glass); color: var(--text-secondary); }
+    .admin-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .key-code { font-family: var(--font-mono); color: var(--cyan-neon); font-weight: 700; }
+    .hwid-tag { font-family: var(--font-mono); font-size: 0.72rem; background: rgba(0, 0, 0, 0.4); padding: 3px 8px; border-radius: 6px; color: var(--text-primary); }
+    .status-badge-active { background: rgba(16, 185, 129, 0.15); color: var(--green-neon); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+    .status-badge-unused { background: rgba(245, 158, 11, 0.15); color: var(--amber-neon); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+    .tbl-action-btn { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; margin-right: 4px; }
+    .tbl-action-btn.del:hover { background: rgba(239, 68, 68, 0.2); color: var(--red-neon); }
+
+    .ios-switch { position: relative; display: inline-block; width: 54px; height: 30px; }
+    .ios-switch input { opacity: 0; width: 0; height: 0; }
+    .ios-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); transition: .3s; border-radius: 34px; }
+    .ios-slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    .ios-switch input:checked + .ios-slider { background: linear-gradient(135deg, #10b981, #00f2fe); border-color: #10b981; }
+    .ios-switch input:checked + .ios-slider:before { transform: translateX(24px); }
+
+    .input-field-group { margin-bottom: 14px; text-align: left; }
+    .input-field-group label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .glass-input { width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-glass-light); color: var(--text-primary); font-family: var(--font-mono); font-size: 0.85rem; padding: 12px 14px; border-radius: var(--radius-sm); outline: none; }
+    .glass-textarea { width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-glass-light); color: var(--text-primary); font-family: var(--font-main); font-size: 0.85rem; padding: 10px 14px; border-radius: var(--radius-sm); outline: none; }
+    .cyber-btn { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #070a11; border: none; font-family: var(--font-main); font-weight: 700; font-size: 0.85rem; padding: 12px 20px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-full { width: 100%; }
+    .hidden { display: none !important; }
+    .text-green { color: var(--green-neon); }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body class="admin-dark-theme">
+
+  <!-- Background Ambience -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-admin"></div>
+
+  <!-- Admin Login Screen (Shown when not authenticated) -->
+  <div class="admin-login-wrapper" id="adminLoginScreen">
+    <div class="glass-card login-box">
+      <div class="login-header text-center">
+        <div class="admin-logo-badge"><i class="fa-solid fa-user-shield"></i></div>
+        <h2>Smooth Admin Portal</h2>
+        <p>iOS Edition Control Center (Firebase Linked)</p>
+      </div>
+
+      <form id="adminLoginForm">
+        <div class="input-field-group">
+          <label><i class="fa-solid fa-envelope"></i> Admin Username / Email</label>
+          <input type="text" id="adminUserInput" class="glass-input" placeholder="Username" autocomplete="off" required>
+        </div>
+
+        <div class="input-field-group">
+          <label><i class="fa-solid fa-lock"></i> Password</label>
+          <input type="password" id="adminPassInput" class="glass-input" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+
+        <div id="adminLoginError" class="modal-error-msg hidden" style="color: #fca5a5; background: rgba(239, 68, 68, 0.15); padding: 8px; border-radius: 6px; margin-bottom: 12px; font-size: 0.75rem;">
+          <i class="fa-solid fa-circle-exclamation"></i> Invalid credentials!
+        </div>
+
+        <button type="submit" class="cyber-btn primary-glow btn-full">
+          <i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard
+        </button>
+
+        <div class="text-center" style="margin-top: 16px;">
+          <a href="index.html" style="color: var(--cyan-neon); text-decoration: none; font-size: 0.8rem;"><i class="fa-solid fa-arrow-left"></i> Return to Main App</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Screen (Shown after login) -->
+  <div class="admin-dashboard hidden" id="adminDashboardScreen">
+
+    <!-- Admin Top Nav -->
+    <header class="admin-header">
+      <div class="admin-brand">
+        <div class="admin-pill-logo"><i class="fa-solid fa-shield-halved"></i></div>
+        <div>
+          <h3>Smooth Master Panel</h3>
+          <span class="admin-status-badge"><span class="live-dot pulse" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span> Connected to smoothoptimizer-default-rtdb</span>
+        </div>
+      </div>
+      <div class="admin-header-actions" style="display: flex; gap: 10px;">
+        <a href="index.html" class="glass-btn-sm" target="_blank"><i class="fa-solid fa-eye"></i> View Client Site</a>
+        <button id="adminLogoutBtn" class="glass-btn-sm" style="color: #ef4444;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- Metrics Row -->
+      <section class="admin-stats-grid">
+        <div class="admin-stat-card">
+          <div class="stat-top">
+            <span class="stat-title">Real-Time Online (iOS)</span>
+            <i class="fa-solid fa-signal text-green"></i>
+          </div>
+          <div class="stat-big-val" id="statOnlineUsers">0</div>
+          <div class="stat-sub-text"><span class="text-green">Live Active</span> devices</div>
+        </div>
+
+        <div class="admin-stat-card">
+          <div class="stat-top">
+            <span class="stat-title">Total VIP Keys</span>
+            <i class="fa-solid fa-key" style="color: var(--purple-neon);"></i>
+          </div>
+          <div class="stat-big-val" id="statTotalKeys">0</div>
+          <div class="stat-sub-text"><span id="statActiveKeysCount">0</span> currently bound</div>
+        </div>
+
+        <div class="admin-stat-card">
+          <div class="stat-top">
+            <span class="stat-title">Active Devices (HWID)</span>
+            <i class="fa-solid fa-fingerprint" style="color: var(--cyan-neon);"></i>
+          </div>
+          <div class="stat-big-val" id="statActiveDevices">0</div>
+          <div class="stat-sub-text">1 Key = 1 Device Enforcement</div>
+        </div>
+
+        <div class="admin-stat-card">
+          <div class="stat-top">
+            <span class="stat-title">Current iOS Version</span>
+            <i class="fa-solid fa-code-branch" style="color: var(--amber-neon);"></i>
+          </div>
+          <div class="stat-big-val" id="statCurrentVersion">v1.0</div>
+          <div class="stat-sub-text">Live Broadcast Active</div>
+        </div>
+      </section>
+
+      <!-- Quick Global Switch Card (Free Users VIP Access) -->
+      <section class="glass-card mb-4" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(16, 185, 129, 0.12)); border: 1px solid rgba(245, 158, 11, 0.35);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 46px; height: 46px; border-radius: 14px; background: rgba(245, 158, 11, 0.2); color: var(--amber-neon); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fa-solid fa-crown"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                Free Users ලාටත් VIP Unlocked කිරීමේ Master Switch එක
+                <span id="freeVipStatusBadge" class="status-badge-unused" style="font-size: 0.7rem;">OFF</span>
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                මෙම switch එක <strong>ON</strong> කළ විට, License Key එකක් නැති <strong>Free users ලාටත් සියලුම VIP Features (120FPS, Anti-Ad DNS)</strong> නොමිලේම Real-time unlock වේ!
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label class="ios-switch">
+              <input type="checkbox" id="freeVipMasterSwitch">
+              <span class="ios-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin Tabs Navigation -->
+      <div class="admin-nav-tabs">
+        <button class="adm-tab-btn active" data-tab="tab-keys"><i class="fa-solid fa-key"></i> License Key Manager</button>
+        <button class="adm-tab-btn" data-tab="tab-users"><i class="fa-solid fa-users"></i> Live Devices & Battery</button>
+        <button class="adm-tab-btn" data-tab="tab-version"><i class="fa-solid fa-sliders"></i> Version & Alerts</button>
+        <button class="adm-tab-btn" data-tab="tab-firebase"><i class="fa-solid fa-fire"></i> Firebase Safety & Sync</button>
+      </div>
+
+      <!-- TAB 1: License Key Manager & Generator -->
+      <div class="admin-tab-pane active" id="tab-keys">
+        <div class="glass-card mb-4">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-plus-circle text-green"></i> Generate New Smooth VIP Key</h3>
+          </div>
+          <form id="generateKeyForm" class="key-gen-grid">
+            <div class="input-field-group">
+              <label>Duration / Plan</label>
+              <select id="keyDurationSelect" class="glass-select" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-glass-light); color: #fff; border-radius: 6px;">
+                <option value="1_day">1 Day Trial (Rs. 100)</option>
+                <option value="7_days">7 Days Pass (Rs. 350)</option>
+                <option value="30_days" selected>30 Days Pro (Rs. 1,000)</option>
+                <option value="lifetime">Lifetime VIP (Rs. 3,500)</option>
+              </select>
+            </div>
+
+            <div class="input-field-group">
+              <label>Price / Note Tag</label>
+              <input type="text" id="keyPriceInput" class="glass-input" placeholder="e.g. Rs. 1000 - Kasun" value="Rs. 1000">
+            </div>
+
+            <div class="input-field-group">
+              <label>Quantity to Generate</label>
+              <input type="number" id="keyQtyInput" class="glass-input" value="1" min="1" max="20">
+            </div>
+
+            <div class="gen-btn-col">
+              <button type="submit" class="cyber-btn primary-glow btn-full">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate VIP Key(s)
+              </button>
+            </div>
+          </form>
+
+          <div id="latestGenKeysBox" class="latest-keys-box hidden">
+            <h4 style="color: var(--green-neon); margin-bottom: 10px;"><i class="fa-solid fa-check-circle"></i> Newly Generated Key:</h4>
+            <div id="newlyGenKeysList"></div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-list-check" style="color: var(--cyan-neon);"></i> Active License Keys & HWID Binding</h3>
+            <div class="table-actions" style="display: flex; gap: 8px;">
+              <input type="text" id="searchKeysInput" class="glass-input" placeholder="Search key, HWID, notes..." style="padding: 6px 12px; width: 220px;">
+              <button id="refreshKeysBtn" class="glass-btn-sm" title="Refresh Table"><i class="fa-solid fa-rotate"></i></button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table" id="keysTable">
+              <thead>
+                <tr>
+                  <th>LICENSE KEY</th>
+                  <th>PLAN / DURATION</th>
+                  <th>PRICE / NOTE</th>
+                  <th>DEVICE HWID (1-DEVICE LOCK)</th>
+                  <th>STATUS</th>
+                  <th>CREATED</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="keysTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Live Online Users & Devices -->
+      <div class="admin-tab-pane" id="tab-users">
+        <div class="glass-card">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-mobile-screen-button" style="color: var(--amber-neon);"></i> Live Connected iOS Devices</h3>
+            <span class="badge-sub">Auto-Refreshes every 5s</span>
+          </div>
+          <p class="card-desc" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">සයිට් එකේ මේ මොහොතේ ඉන්න අයගේ Device Model, සැබෑ Battery අගය (%), සහ Latency එක live මෙහි පෙන්වයි.</p>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>STATUS</th>
+                  <th>DEVICE MODEL</th>
+                  <th>BATTERY (%)</th>
+                  <th>HWID LOCK</th>
+                  <th>TIER</th>
+                  <th>LATENCY</th>
+                  <th>LAST SEEN</th>
+                </tr>
+              </thead>
+              <tbody id="onlineUsersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Version Control & Announcement Broadcaster -->
+      <div class="admin-tab-pane" id="tab-version">
+        <div class="version-controls-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          
+          <div class="glass-card">
+            <div class="card-head">
+              <h3><i class="fa-solid fa-code-branch" style="color: var(--purple-neon);"></i> Version Update Broadcaster</h3>
+            </div>
+            <p class="card-desc" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">
+              ඔබ මෙතනින් Version එක (උදා: <code>2</code>) වෙනස් කළ සැනින්, සයිට් එකේ ඉන්න සියලුම users ලාට <strong>"නව Version එකක් ලබාගන්න"</strong> කියා popup alert එකක් දිස්වේ.
+            </p>
+
+            <form id="updateVersionForm">
+              <div class="input-field-group">
+                <label>Latest Engine Version / lastv (e.g. 2 or v2.0)</label>
+                <input type="text" id="targetVersionInput" class="glass-input" value="1" required>
+              </div>
+
+              <div class="input-field-group">
+                <label>Update Link / New Website URL (Optional)</label>
+                <input type="text" id="versionUpdateUrlInput" class="glass-input" placeholder="e.g. https://smooth-v2.vercel.app or Telegram Link">
+              </div>
+
+              <div class="input-field-group">
+                <label>Release Notes / Message</label>
+                <textarea id="versionNotesInput" class="glass-textarea" rows="3">Smooth iOS 18 stability and PUBG 120FPS ultra low ping optimization added.</textarea>
+              </div>
+
+              <button type="submit" class="cyber-btn primary-glow btn-full">
+                <i class="fa-solid fa-bullhorn"></i> Push Update Alert to All Users
+              </button>
+            </form>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-head">
+              <h3><i class="fa-solid fa-message text-green"></i> Live Announcement Banner</h3>
+            </div>
+            <p class="card-desc" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">සයිට් එකේ උඩින්ම දිස්වන notice banner එක මෙතනින් සකස් කළ හැක.</p>
+
+            <form id="announcementForm">
+              <div class="input-field-group">
+                <label>Announcement Message</label>
+                <input type="text" id="announcementInput" class="glass-input" placeholder="e.g. VIP Server Maintenance at 10 PM. Ping is now optimized!">
+              </div>
+
+              <div class="checkbox-row" style="display: flex; align-items: center; gap: 8px; margin: 12px 0;">
+                <input type="checkbox" id="announcementActiveCheck" checked>
+                <label for="announcementActiveCheck" style="font-size: 0.8rem;">Show banner on client site</label>
+              </div>
+
+              <button type="submit" class="cyber-btn purple-glow btn-full">
+                <i class="fa-solid fa-paper-plane"></i> Update Banner
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 4: Firebase Safety & Config -->
+      <div class="admin-tab-pane" id="tab-firebase">
+        <div class="glass-card">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-shield-halved text-green"></i> Firebase Realtime Database Status</h3>
+            <span class="badge-sub text-green">Active & Protected</span>
+          </div>
+          <div class="free-info">
+            <p><i class="fa-solid fa-circle-check text-green"></i> <strong>Target Cloud RTDB:</strong> <code>https://smoothoptimizer-default-rtdb.firebaseio.com</code></p>
+            <p><i class="fa-solid fa-lock" style="color: var(--cyan-neon);"></i> <strong>Data Isolation Path:</strong> <code>/ios_optimizer/</code></p>
+            <div class="ios-install-steps" style="margin-top: 14px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; font-size: 0.8rem;">
+              <h4 style="color: #cbd5e1; margin-bottom: 8px;"><i class="fa-solid fa-shield-virus"></i> Safety Guarantee for Smooth APK:</h4>
+              <p style="color: var(--text-secondary); line-height: 1.6;">
+                ඔබේ Android Smooth APK එකේ කිසිම data එකක් overwrite හෝ delete නොවීමට, මෙම iOS Web App එකේ සියලුම data 
+                (License keys, Live online devices, Version settings) වෙනමම <code>/ios_optimizer/</code> කියන child node එක තුළ පමණක් save වේ.
+                එමගින් ඔබගේ පවතින Smooth APK එකට <strong>100% ක පූර්ණ ආරක්ෂාවක්</strong> ලැබේ.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Firebase App & Realtime Database SDK (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
